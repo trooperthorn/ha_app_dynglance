@@ -58,10 +58,10 @@ var defaultHTTPClient = &http.Client{
 // defaultInsecureHTTPClient backs widget requests with allow-insecure opted
 // in per-request (see CustomAPIRequest.AllowInsecure), for self-signed
 // internal HTTPS endpoints; see SECURITY.md.
-var defaultInsecureHTTPClient = &http.Client{ // #nosec G402 -- opt-in per request, not a default
+var defaultInsecureHTTPClient = &http.Client{
 	Timeout: defaultClientTimeout,
 	Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // #nosec G402 -- opt-in per request, not a default
 		Proxy:           http.ProxyFromEnvironment,
 	},
 }

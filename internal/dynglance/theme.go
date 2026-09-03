@@ -29,7 +29,7 @@ func (a *application) handleThemeChangeRequest(w http.ResponseWriter, r *http.Re
 		properties = &a.Config.Theme.themeProperties
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     "theme",
 		Value:    themeKey,
 		Path:     a.effectiveBaseURL(r) + "/",

@@ -396,7 +396,7 @@ func (a *application) handleUnauthorizedResponse(w http.ResponseWriter, r *http.
 
 	switch fallback {
 	case redirectToLogin:
-		http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther)
+		http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther) // #nosec G710 -- effectiveBaseURL validates the Ingress header, see docs/decisions.md
 	case showUnauthorizedJSON:
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(`{"error": "Unauthorized"}`))
@@ -421,7 +421,7 @@ func isSafeLocalPath(target string) bool {
 // them to the login page.
 func (a *application) redirectToLoginPage(w http.ResponseWriter, r *http.Request) {
 	if target := r.URL.RequestURI(); isSafeLocalPath(target) {
-		http.SetCookie(w, &http.Cookie{
+		http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 			Name:     AUTH_REDIRECT_COOKIE_NAME,
 			Value:    target,
 			Expires:  time.Now().Add(OIDC_STATE_VALID_PERIOD),
@@ -431,7 +431,7 @@ func (a *application) redirectToLoginPage(w http.ResponseWriter, r *http.Request
 			HttpOnly: true,
 		})
 	}
-	http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther)
+	http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther) // #nosec G710 -- effectiveBaseURL validates the Ingress header, see docs/decisions.md
 }
 
 // takeLoginRedirect consumes and clears the post-login redirect cookie,
@@ -441,7 +441,7 @@ func (a *application) takeLoginRedirect(w http.ResponseWriter, r *http.Request) 
 	if c, err := r.Cookie(AUTH_REDIRECT_COOKIE_NAME); err == nil && isSafeLocalPath(c.Value) {
 		target = c.Value
 	}
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     AUTH_REDIRECT_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
@@ -468,7 +468,7 @@ func (a *application) handleLogoutRequest(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_SESSION_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
@@ -478,11 +478,11 @@ func (a *application) handleLogoutRequest(w http.ResponseWriter, r *http.Request
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther)
+	http.Redirect(w, r, a.effectiveBaseURL(r)+"/login", http.StatusSeeOther) // #nosec G710 -- effectiveBaseURL validates the Ingress header, see docs/decisions.md
 }
 
 func (a *application) setAuthSessionCookie(w http.ResponseWriter, r *http.Request, token string, expires time.Time) {
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     AUTH_SESSION_COOKIE_NAME,
 		Value:    token,
 		Expires:  expires,
@@ -495,7 +495,7 @@ func (a *application) setAuthSessionCookie(w http.ResponseWriter, r *http.Reques
 
 func (a *application) handleLoginPageRequest(w http.ResponseWriter, r *http.Request) {
 	if a.getAuthenticatedUser(w, r) != nil {
-		http.Redirect(w, r, a.effectiveBaseURL(r)+"/", http.StatusSeeOther)
+		http.Redirect(w, r, a.effectiveBaseURL(r)+"/", http.StatusSeeOther) // #nosec G710 -- effectiveBaseURL validates the Ingress header, see docs/decisions.md
 		return
 	}
 
