@@ -48,11 +48,13 @@ type dynawidgetsListEntry struct {
 }
 
 type dynawidgetsRequired struct {
-	URL string `yaml:"url"`
+	URL         string                       `yaml:"url"`
+	Subrequests map[string]*CustomAPIRequest `yaml:"subrequests"`
 }
 
 func (widget *dynawidgetsWidget) initialize() error {
 	widget.withTitle("Dynawidgets").withCacheDuration(1 * time.Minute)
+	widget.widgetBase.WIP = true
 
 	if widget.Widget == "" {
 		return errors.New("widget (slug) is required")
@@ -80,12 +82,31 @@ func (widget *dynawidgetsWidget) initialize() error {
 	}
 
 	// Apply required defaults if user hasn't specified them
-	if required != nil && required.URL != "" {
-		if widget.CustomAPIRequest == nil {
-			widget.CustomAPIRequest = &CustomAPIRequest{}
+	if required != nil {
+		if required.URL != "" {
+			if widget.CustomAPIRequest == nil {
+				widget.CustomAPIRequest = &CustomAPIRequest{}
+			}
+			if widget.CustomAPIRequest.URL == "" {
+				widget.CustomAPIRequest.URL = required.URL
+			}
 		}
-		if widget.CustomAPIRequest.URL == "" {
-			widget.CustomAPIRequest.URL = required.URL
+
+		// A template's default subrequest only fills in one the user hasn't
+		// defined, or an empty URL on one they have; user config always wins.
+		for key, req := range required.Subrequests {
+			if req == nil {
+				continue
+			}
+			if widget.Subrequests == nil {
+				widget.Subrequests = make(map[string]*CustomAPIRequest)
+			}
+			existing, ok := widget.Subrequests[key]
+			if !ok || existing == nil {
+				widget.Subrequests[key] = req
+			} else if existing.URL == "" {
+				existing.URL = req.URL
+			}
 		}
 	}
 
@@ -163,11 +184,18 @@ func dynawidgetsParseTemplate(raw string) (templateContent string, required *dyn
 	}
 
 	templateContent = strings.TrimRight(raw[:idx], "\n\r ")
-	requiredRaw := strings.TrimSpace(raw[idx+len(separator):])
+	requiredRaw := dedentYAMLBlock(raw[idx+len(separator):])
 
 	if requiredRaw == "" {
 		return templateContent, nil
 	}
+
+	expanded, err := parseConfigVariables([]byte(requiredRaw))
+	if err != nil {
+		slog.Error("Failed to expand variables in dynawidget required section", "error", err)
+		return templateContent, nil
+	}
+	requiredRaw = string(expanded)
 
 	required = &dynawidgetsRequired{}
 	if err := yaml.Unmarshal([]byte(requiredRaw), required); err != nil {
@@ -176,6 +204,37 @@ func dynawidgetsParseTemplate(raw string) (templateContent string, required *dyn
 	}
 
 	return templateContent, required
+}
+
+// dedentYAMLBlock strips the common leading indentation from the "required: |"
+// block, keeping nested keys aligned.
+func dedentYAMLBlock(raw string) string {
+	lines := strings.Split(raw, "\n")
+
+	minIndent := -1
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		indent := len(line) - len(strings.TrimLeft(line, " \t"))
+		if minIndent == -1 || indent < minIndent {
+			minIndent = indent
+		}
+	}
+
+	if minIndent <= 0 {
+		return strings.TrimSpace(raw)
+	}
+
+	for i, line := range lines {
+		if len(line) >= minIndent {
+			lines[i] = line[minIndent:]
+		} else {
+			lines[i] = strings.TrimLeft(line, " \t")
+		}
+	}
+
+	return strings.TrimSpace(strings.Join(lines, "\n"))
 }
 
 // dynawidgetsResolveTemplate checks for a cached template on disk, or fetches
