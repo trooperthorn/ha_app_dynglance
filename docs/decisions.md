@@ -86,4 +86,26 @@ exactly this class of bypass, backslash variants included. Chosen instead:
 reuse `isSafeLocalPath` for the Ingress header too, so a forged header
 degrades to the configured static `server.base-url` instead of being
 followed, and the two same-origin checks in the codebase can't drift apart.
+
+## 2026-09-04: Go toolchain bumped 1.25.14 to 1.26.8, a minor version, not held on 1.25.x
+
+`go.mod`, `Dockerfile`, and `ha-addon/dynglance/Dockerfile`. PR #7's image
+scan flagged a stdlib CVE (CVE-2026-46600) fixed only in Go 1.26.6 or
+later; no 1.25.x patch carries the fix. Rejected: staying on the latest
+1.25.x patch (1.25.14, itself a same-day earlier fix for a different batch
+of stdlib CVEs) and treating this one CVE as accepted residual risk, since
+a minor version bump carries more compatibility risk than a patch bump.
+Checked the Go 1.26 release notes for anything that could break this
+codebase before deciding: no language or standard library changes affect
+how this app uses `net/http`, `html/template`, `text/template`,
+`encoding/json`, `encoding/xml`, or `context`; the only two notices that
+touch packages this app actually uses are `http.Client` now scoping
+cookies to `Request.Host` (affects `widget-torrenting.go`'s cookie jar
+only if a request's `Host` header differs from its connection target,
+which this app never sets) and `http.ServeMux` trailing-slash redirects
+changing from 301 to 307 (more correct, not a behavior this app or a
+browser depends on). Go's own release notes state the Go 1 compatibility
+promise holds for 1.26. Chosen: bump to 1.26.8 (the latest patch as of
+this session) now, rather than defer past the point of forgetting why the
+CVE was accepted.
 </content>

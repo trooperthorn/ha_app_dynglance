@@ -2,7 +2,7 @@ ARG BUILD_FROM=ghcr.io/home-assistant/base:3.19
 ARG DYNGLANCE_REPO=https://github.com/trooperthorn/ha_app_dynglance.git
 ARG DYNGLANCE_REF=main
 
-FROM --platform=$BUILDPLATFORM golang:1.25.14-alpine3.24 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26.8-alpine3.24 AS builder
 
 ARG DYNGLANCE_REPO
 ARG DYNGLANCE_REF
