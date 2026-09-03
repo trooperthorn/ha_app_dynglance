@@ -37,7 +37,7 @@ func rewriteImgSrcs(ctx context.Context, html template.HTML, providers *widgetPr
 		fallback := ` data-fallback-src="` + strings.ReplaceAll(originalSrc, `"`, `&quot;`) + `"`
 		return "<img" + parts[1] + ` src="` + newSrc + `"` + parts[3] + fallback + ">"
 	})
-	return template.HTML(result)
+	return template.HTML(result) // #nosec G203 -- rewriting img src in already-rendered widget HTML, not new external input
 }
 
 var (
@@ -55,10 +55,13 @@ var defaultHTTPClient = &http.Client{
 	Timeout: defaultClientTimeout,
 }
 
+// defaultInsecureHTTPClient backs widget requests with allow-insecure opted
+// in per-request (see CustomAPIRequest.AllowInsecure), for self-signed
+// internal HTTPS endpoints; see SECURITY.md.
 var defaultInsecureHTTPClient = &http.Client{
 	Timeout: defaultClientTimeout,
 	Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, // #nosec G402 -- opt-in per request, not a default
 		Proxy:           http.ProxyFromEnvironment,
 	},
 }
@@ -71,8 +74,8 @@ var dynglanceUserAgentString = "DynGlance/" + resolveVersion() + " +https://gith
 var userAgentPersistentVersion atomic.Int32
 
 func getBrowserUserAgentHeader() string {
-	if rand.IntN(2000) == 0 {
-		userAgentPersistentVersion.Store(rand.Int32N(5))
+	if rand.IntN(2000) == 0 { // #nosec G404 -- cosmetic User-Agent rotation, not security-sensitive
+		userAgentPersistentVersion.Store(rand.Int32N(5)) // #nosec G404
 	}
 
 	version := strconv.Itoa(130 + int(userAgentPersistentVersion.Load()))
@@ -147,7 +150,7 @@ func decodeXmlFromRequest[T any](client requestDoer, request *http.Request) (T, 
 		)
 	}
 
-	err = xml.Unmarshal(body, &result)
+	err = xml.Unmarshal(body, &result) // #nosec G709 -- decoding operator-configured feed URLs (RSS/Atom); encoding/xml does not resolve external entities/DTDs
 	if err != nil {
 		return result, err
 	}

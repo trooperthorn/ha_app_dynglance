@@ -2,7 +2,7 @@ package dynglance
 
 import (
 	"bytes"
-	"crypto/md5"
+	"crypto/md5" // #nosec G501 -- used only as a cache-busting fingerprint, see computeFSHash
 	"embed"
 	"encoding/hex"
 	"errors"
@@ -59,7 +59,7 @@ func getStaticFSHash() string {
 }
 
 func computeFSHash(files fs.FS) (string, error) {
-	hash := md5.New()
+	hash := md5.New() // #nosec G401 -- cache-busting fingerprint for asset URLs, not a security use of MD5
 
 	err := fs.WalkDir(files, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

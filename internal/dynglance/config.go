@@ -250,7 +250,7 @@ func parseConfigVariableOfType(variableType, variableName string) (string, bool,
 		return v, false, nil
 	case configVarTypeSecret:
 		secretPath := filepath.Join("/run/secrets", variableName)
-		secret, err := os.ReadFile(secretPath)
+		secret, err := os.ReadFile(secretPath) // #nosec G304 -- variableName is constrained to [a-zA-Z0-9_-] by configVariablePattern, cannot traverse
 		if err != nil {
 			return "", false, fmt.Errorf("reading secret file: %v", err)
 		}
@@ -330,7 +330,7 @@ func recursiveParseYAMLIncludes(mainFilePath string, includes map[string]struct{
 		return nil, nil, fmt.Errorf("recursion depth limit of %d reached", CONFIG_INCLUDE_RECURSION_DEPTH_LIMIT)
 	}
 
-	mainFileContents, err := os.ReadFile(mainFilePath)
+	mainFileContents, err := os.ReadFile(mainFilePath) // #nosec G304 -- mainFilePath is the CLI-provided config path or a $include from it; whoever can write dynglance.yml already has full app control, same trust level as Config Upload
 	if err != nil {
 		return nil, nil, fmt.Errorf("reading %s: %w", mainFilePath, err)
 	}

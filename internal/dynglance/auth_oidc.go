@@ -57,7 +57,7 @@ func (a *application) handleOIDCLogin(w http.ResponseWriter, r *http.Request) {
 
 	secure := a.isRequestHTTPS(r)
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_STATE_COOKIE_NAME,
 		Value:    state,
 		Expires:  time.Now().Add(OIDC_STATE_VALID_PERIOD),
@@ -67,7 +67,7 @@ func (a *application) handleOIDCLogin(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_PKCE_COOKIE_NAME,
 		Value:    pkceVerifier,
 		Expires:  time.Now().Add(OIDC_STATE_VALID_PERIOD),
@@ -87,34 +87,39 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	// Validate state
 	stateCookie, err := r.Cookie(OIDC_STATE_COOKIE_NAME)
 	if err != nil || stateCookie.Value == "" {
-		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
 	if r.URL.Query().Get("state") != stateCookie.Value {
-		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
 	pkceCookie, err := r.Cookie(OIDC_PKCE_COOKIE_NAME)
 	if err != nil || pkceCookie.Value == "" {
-		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=invalid_state", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
 	// Clear state + PKCE cookies
-	http.SetCookie(w, &http.Cookie{
+	secure := a.isRequestHTTPS(r)
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_STATE_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   secure,
 		Path:     baseURL + "/",
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 	})
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_PKCE_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   secure,
 		Path:     baseURL + "/",
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 	})
 
@@ -125,7 +130,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 		if errParam == "" {
 			errParam = "missing_code"
 		}
-		http.Redirect(w, r, baseURL+"/login?error="+url.QueryEscape(errParam), http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error="+url.QueryEscape(errParam), http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
@@ -133,21 +138,21 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	oauth2Token, err := a.oauth2Config.Exchange(ctx, code, oauth2.VerifierOption(pkceCookie.Value))
 	if err != nil {
 		slog.Error("OIDC token exchange failed", "error", err)
-		http.Redirect(w, r, baseURL+"/login?error=token_exchange", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=token_exchange", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
 	// Extract and verify ID token
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		http.Redirect(w, r, baseURL+"/login?error=no_id_token", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=no_id_token", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
 	idToken, err := a.oidcVerifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		slog.Error("OIDC ID token verification failed", "error", err)
-		http.Redirect(w, r, baseURL+"/login?error=token_verify", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=token_verify", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
@@ -155,7 +160,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	var claims map[string]interface{}
 	if err := idToken.Claims(&claims); err != nil {
 		slog.Error("OIDC could not extract claims", "error", err)
-		http.Redirect(w, r, baseURL+"/login?error=claims", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=claims", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
@@ -170,7 +175,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 		username, _ = claims["sub"].(string)
 	}
 	if username == "" {
-		http.Redirect(w, r, baseURL+"/login?error=no_username", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=no_username", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
@@ -203,7 +208,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 		}
 		if !allowed {
 			slog.Warn("OIDC user not in allowed users/groups", "username", username)
-			http.Redirect(w, r, baseURL+"/login?error=not_allowed", http.StatusSeeOther)
+			http.Redirect(w, r, baseURL+"/login?error=not_allowed", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 			return
 		}
 	}
@@ -212,7 +217,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	sessionID, err := makeAuthSecretKey(32)
 	if err != nil {
 		slog.Error("OIDC could not generate session ID", "error", err)
-		http.Redirect(w, r, baseURL+"/login?error=internal", http.StatusSeeOther)
+		http.Redirect(w, r, baseURL+"/login?error=internal", http.StatusSeeOther) // #nosec G710 -- baseURL is effectiveBaseURL, which validates the Ingress header; see docs/decisions.md
 		return
 	}
 
@@ -223,7 +228,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 		CreatedAt: time.Now(),
 	})
 
-	http.SetCookie(w, &http.Cookie{
+	http.SetCookie(w, &http.Cookie{ // #nosec G124 -- Secure/SameSite/HttpOnly are all set; gosec can't verify a non-literal Secure value
 		Name:     OIDC_SESSION_COOKIE_NAME,
 		Value:    sessionID,
 		Expires:  time.Now().Add(OIDC_SESSION_VALID_PERIOD),
@@ -234,7 +239,7 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	})
 
 	slog.Info("OIDC user logged in", "username", username)
-	http.Redirect(w, r, a.takeLoginRedirect(w, r), http.StatusSeeOther)
+	http.Redirect(w, r, a.takeLoginRedirect(w, r), http.StatusSeeOther) // #nosec G710 -- takeLoginRedirect only returns effectiveBaseURL(r)+"/" or a cookie value already checked by isSafeLocalPath
 }
 
 func extractGroupsClaim(claims map[string]interface{}, claimName string) []string {

@@ -8,7 +8,7 @@ import (
 )
 
 func loadEnvFile(path string) error {
-	file, err := os.Open(path)
+	file, err := os.Open(path) // #nosec G304 -- path is options.envFile, a CLI flag set by the operator/deployment, not request input
 	if err != nil {
 		return fmt.Errorf("opening env file: %w", err)
 	}

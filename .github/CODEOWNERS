@@ -1,0 +1,6 @@
+# Security-sensitive runtime and delivery surfaces require owner review.
+/internal/ @trooperthorn
+/pkg/ @trooperthorn
+/ha-addon/ @trooperthorn
+/.github/workflows/ @trooperthorn
+/SECURITY.md @trooperthorn

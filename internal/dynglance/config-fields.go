@@ -186,7 +186,7 @@ func newCustomIconField(value string) customIconField {
 
 	prefix, icon, found := strings.Cut(value, ":")
 	if !found {
-		field.URL = template.URL(value)
+		field.URL = template.URL(value) // #nosec G203 -- an icon: value from the operator's own config, same trust level as the rest of dynglance.yml
 		return field
 	}
 
@@ -200,19 +200,23 @@ func newCustomIconField(value string) customIconField {
 		ext = "svg"
 	}
 
+	// basename/ext come from the operator's own icon: config value; whoever
+	// writes dynglance.yml already has full config-file trust (see
+	// SECURITY.md), so a crafted basename can at most point this icon at a
+	// different CDN path, not escalate privilege.
 	switch prefix {
 	case "si":
 		field.AutoInvert = true
-		field.URL = template.URL("https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/" + basename + ".svg")
+		field.URL = template.URL("https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/" + basename + ".svg") // #nosec G203
 	case "di":
-		field.URL = template.URL("https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/" + ext + "/" + basename + "." + ext)
+		field.URL = template.URL("https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/" + ext + "/" + basename + "." + ext) // #nosec G203
 	case "mdi":
 		field.AutoInvert = true
-		field.URL = template.URL("https://cdn.jsdelivr.net/npm/@mdi/svg@latest/svg/" + basename + ".svg")
+		field.URL = template.URL("https://cdn.jsdelivr.net/npm/@mdi/svg@latest/svg/" + basename + ".svg") // #nosec G203
 	case "sh":
-		field.URL = template.URL("https://cdn.jsdelivr.net/gh/selfhst/icons/" + ext + "/" + basename + "." + ext)
+		field.URL = template.URL("https://cdn.jsdelivr.net/gh/selfhst/icons/" + ext + "/" + basename + "." + ext) // #nosec G203
 	default:
-		field.URL = template.URL(value)
+		field.URL = template.URL(value) // #nosec G203
 	}
 
 	return field
@@ -244,7 +248,7 @@ func (i *customIconField) cacheURL(cache *imageCache) {
 		}
 	}
 
-	i.URL = template.URL(cachedURL)
+	i.URL = template.URL(cachedURL) // #nosec G203 -- cachedURL is the app's own image-cache-produced local path, not external input
 }
 
 func (i *customIconField) resolveAssetURL(baseURL string) {
@@ -262,7 +266,7 @@ func (i *customIconField) resolveAssetURL(baseURL string) {
 	}
 
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
-	i.URL = template.URL(baseURL + currentURL)
+	i.URL = template.URL(baseURL + currentURL) // #nosec G203 -- baseURL is effectiveBaseURL (validated) and currentURL is the app's own /assets/ prefix check above
 }
 
 func (i *customIconField) prepare(providers *widgetProviders) {
@@ -363,7 +367,7 @@ func (p *proxyOptionsField) UnmarshalYAML(node *yaml.Node) error {
 		Timeout: timeout,
 		Transport: &http.Transport{
 			Proxy:           http.ProxyURL(parsedUrl),
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: p.AllowInsecure},
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: p.AllowInsecure}, // #nosec G402 -- opt-in per proxy config, see SECURITY.md
 		},
 	}
 

@@ -117,7 +117,7 @@ func getHostInfo() (cacheableHostInfo, error) {
 		return info, err
 	}
 
-	info.bootTime = timestampJSON{time.Unix(int64(bootTime), 0)}
+	info.bootTime = timestampJSON{time.Unix(int64(bootTime), 0)} // #nosec G115 -- boot-time unix seconds cannot approach int64's range
 	info.available = true
 
 	return info, nil

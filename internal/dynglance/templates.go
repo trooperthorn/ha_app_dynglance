@@ -33,14 +33,18 @@ var globalTemplateFunctions = template.FuncMap{
 
 		return strings.HasSuffix(strings.ToLower(str), strings.ToLower(suffix))
 	},
+	// safeCSS/safeURL/safeHTML are explicit template-author opt-ins to
+	// render fetched or configured content unescaped; the operator who
+	// writes the template already has full config-file trust. See
+	// SECURITY.md.
 	"safeCSS": func(str string) template.CSS {
-		return template.CSS(str)
+		return template.CSS(str) // #nosec G203
 	},
 	"safeURL": func(str string) template.URL {
-		return template.URL(str)
+		return template.URL(str) // #nosec G203
 	},
 	"safeHTML": func(str string) template.HTML {
-		return template.HTML(str)
+		return template.HTML(str) // #nosec G203
 	},
 	"absInt": func(i int) int {
 		return int(math.Abs(float64(i)))
@@ -72,7 +76,7 @@ var globalTemplateFunctions = template.FuncMap{
 			label = "TB"
 		}
 
-		return template.HTML(value + ` <span class="color-base size-h5">` + label + `</span>`)
+		return template.HTML(value + ` <span class="color-base size-h5">` + label + `</span>`) // #nosec G203 -- value/label are internally formatted numbers/unit strings, not external input
 	},
 }
 
@@ -105,5 +109,5 @@ func formatApproxNumber(count int) string {
 }
 
 func dynamicRelativeTimeAttrs(t interface{ Unix() int64 }) template.HTMLAttr {
-	return template.HTMLAttr(`data-dynamic-relative-time="` + strconv.FormatInt(t.Unix(), 10) + `"`)
+	return template.HTMLAttr(`data-dynamic-relative-time="` + strconv.FormatInt(t.Unix(), 10) + `"`) // #nosec G203 -- t.Unix() is an int64 formatted as digits, not external input
 }

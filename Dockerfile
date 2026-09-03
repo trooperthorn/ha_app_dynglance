@@ -1,4 +1,4 @@
-FROM golang:1.25.0-alpine3.21 AS builder
+FROM golang:1.26.8-alpine3.24 AS builder
 
 WORKDIR /app
 
@@ -18,12 +18,15 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 go build \
     -ldflags="-X github.com/Panonim/dynglance/internal/dynglance.buildVersion=${APP_VERSION}" .
 
-FROM alpine:3.21
+FROM alpine:3.24
 
 # zfs: lets gopsutil's disk-usage lookups shell out to `zfs` for accurate
 # used/available stats on ZFS-backed mounts (server-stats widget).
 # curl: used by the HEALTHCHECK below.
-RUN apk add --no-cache zfs curl
+# apk upgrade first: patches base-image packages (libssl, busybox, etc.) to
+# whatever Alpine's repo currently has, not just what was baked into this
+# image tag's layer when it was last published; see docs/decisions.md.
+RUN apk upgrade --no-cache && apk add --no-cache zfs curl
 
 WORKDIR /app
 COPY --from=builder /app/dynglance .

@@ -340,7 +340,7 @@ func (w *widgetBase) renderTemplate(data any, t *template.Template) template.HTM
 		}
 	}
 
-	return template.HTML(w.templateBuffer.String())
+	return template.HTML(w.templateBuffer.String()) // #nosec G203 -- the widget's own already-rendered output buffer, not external input
 }
 
 func (w *widgetBase) withTitle(title string) *widgetBase {
