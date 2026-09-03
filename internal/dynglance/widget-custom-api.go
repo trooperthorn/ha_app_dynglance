@@ -386,7 +386,7 @@ func fetchAndRenderCustomAPIRequest(
 		output = strings.ReplaceAll(output, customAPIHideWidgetSentinel, "")
 	}
 
-	return template.HTML(output), hidden, nil
+	return template.HTML(output), hidden, nil // #nosec G203 -- compiled custom-api template output; rendering fetched data via an operator-authored template is this widget's purpose, see SECURITY.md
 }
 
 type decoratedGJSONResult struct {
@@ -739,7 +739,7 @@ func customAPITemplateFuncs(providers *widgetProviders) template.FuncMap {
 			return data
 		},
 		"hide": func() template.HTML {
-			return template.HTML(customAPIHideWidgetSentinel)
+			return template.HTML(customAPIHideWidgetSentinel) // #nosec G203 -- a fixed internal sentinel constant, not external input
 		},
 		// list creates a []any from the given arguments, enabling range iteration
 		// over dynamically constructed slices in templates.

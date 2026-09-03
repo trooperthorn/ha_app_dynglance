@@ -252,7 +252,7 @@ func dynawidgetsResolveTemplate(slug string, repo string) (templateContent strin
 	}
 
 	// Check if template already exists on disk
-	if data, readErr := os.ReadFile(templatePath); readErr == nil {
+	if data, readErr := os.ReadFile(templatePath); readErr == nil { // #nosec G304 -- templatePath is contained by the filepath.Abs/HasPrefix check above
 		slog.Info("Using cached dynawidget template", "slug", slug, "path", templatePath)
 		content, req := dynawidgetsParseTemplate(string(data))
 		return content, "", req, nil
@@ -336,7 +336,7 @@ func dynawidgetsResolveTemplate(slug string, repo string) (templateContent strin
 	rawContent := string(bodyBytes)
 
 	// Save to disk for future use
-	if err := os.MkdirAll(dynawidgetsAssetsDir, 0755); err != nil {
+	if err := os.MkdirAll(dynawidgetsAssetsDir, 0750); err != nil {
 		slog.Error("Failed to create dynawidgets assets directory", "error", err)
 	} else if err := os.WriteFile(templatePath, bodyBytes, 0600); err != nil {
 		slog.Error("Failed to cache dynawidget template", "error", err, "path", templatePath)

@@ -37,7 +37,7 @@ func rewriteImgSrcs(ctx context.Context, html template.HTML, providers *widgetPr
 		fallback := ` data-fallback-src="` + strings.ReplaceAll(originalSrc, `"`, `&quot;`) + `"`
 		return "<img" + parts[1] + ` src="` + newSrc + `"` + parts[3] + fallback + ">"
 	})
-	return template.HTML(result)
+	return template.HTML(result) // #nosec G203 -- rewriting img src in already-rendered widget HTML, not new external input
 }
 
 var (
@@ -150,7 +150,7 @@ func decodeXmlFromRequest[T any](client requestDoer, request *http.Request) (T, 
 		)
 	}
 
-	err = xml.Unmarshal(body, &result)
+	err = xml.Unmarshal(body, &result) // #nosec G709 -- decoding operator-configured feed URLs (RSS/Atom); encoding/xml does not resolve external entities/DTDs
 	if err != nil {
 		return result, err
 	}

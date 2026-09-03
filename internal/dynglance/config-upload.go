@@ -150,14 +150,14 @@ func (a *application) handleConfigUploadInclude(w http.ResponseWriter, req confi
 	}
 
 	uploadsDir := filepath.Join(filepath.Dir(a.ConfigPath), "uploads")
-	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
+	if err := os.MkdirAll(uploadsDir, 0o750); err != nil {
 		slog.Error("Creating config-upload uploads directory failed", "error", err)
 		a.writeConfigUploadJSON(w, http.StatusInternalServerError, configUploadResponse{Error: "Could not create uploads directory"})
 		return
 	}
 
 	destPath := filepath.Join(uploadsDir, filename)
-	if err := os.WriteFile(destPath, []byte(req.Content), 0o644); err != nil {
+	if err := os.WriteFile(destPath, []byte(req.Content), 0o600); err != nil {
 		slog.Error("Writing uploaded config fragment failed", "path", destPath, "error", err)
 		a.writeConfigUploadJSON(w, http.StatusInternalServerError, configUploadResponse{Error: "Could not write file"})
 		return
@@ -179,7 +179,7 @@ func (a *application) handleConfigUploadReplace(w http.ResponseWriter, req confi
 	}
 
 	tempPath := a.ConfigPath + ".upload-tmp"
-	if err := os.WriteFile(tempPath, []byte(req.Content), 0o644); err != nil {
+	if err := os.WriteFile(tempPath, []byte(req.Content), 0o600); err != nil {
 		slog.Error("Writing temporary uploaded config failed", "error", err)
 		a.writeConfigUploadJSON(w, http.StatusInternalServerError, configUploadResponse{Error: "Could not write temporary file"})
 		return
@@ -219,7 +219,7 @@ func (a *application) handleConfigUploadReplace(w http.ResponseWriter, req confi
 
 // backupConfigFile copies the config to a timestamped .bak-* file (no-op if missing) and prunes beyond configUploadBackupsToKeep.
 func backupConfigFile(configPath string) error {
-	contents, err := os.ReadFile(configPath)
+	contents, err := os.ReadFile(configPath) // #nosec G304 -- configPath is a.ConfigPath, resolved once at startup from CLI/env, never from a request
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -228,7 +228,7 @@ func backupConfigFile(configPath string) error {
 	}
 
 	backupPath := fmt.Sprintf("%s.bak-%d", configPath, time.Now().Unix())
-	if err := os.WriteFile(backupPath, contents, 0o644); err != nil {
+	if err := os.WriteFile(backupPath, contents, 0o600); err != nil { // #nosec G703 -- configPath is a.ConfigPath, resolved once at startup from CLI/env, never from a request
 		return err
 	}
 

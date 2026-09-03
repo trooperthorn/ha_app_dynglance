@@ -112,12 +112,12 @@ func convertExtensionContent(options extensionRequestOptions, content []byte, co
 	switch contentType {
 	case extensionContentHTML:
 		if options.AllowHtml {
-			return template.HTML(content)
+			return template.HTML(content) // #nosec G203 -- explicit operator opt-in (AllowHtml); default path below HTML-escapes
 		}
 
 		fallthrough
 	default:
-		return template.HTML("<pre>" + html.EscapeString(string(content)) + "</pre>")
+		return template.HTML("<pre>" + html.EscapeString(string(content)) + "</pre>") // #nosec G203 -- content is escaped by html.EscapeString above
 	}
 }
 

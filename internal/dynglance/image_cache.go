@@ -156,7 +156,7 @@ func (c *imageCache) downloadAndCacheWithClient(ctx context.Context, rawURL stri
 	}
 
 	tmpPath := filepath.Join(c.dir, hashHex+".tmp")
-	file, err := os.Create(tmpPath)
+	file, err := os.Create(tmpPath) // #nosec G304 -- hashHex is a hex-encoded sha256 sum, fixed charset, cannot traverse
 	if err != nil {
 		return "", err
 	}

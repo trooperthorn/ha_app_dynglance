@@ -64,13 +64,13 @@ func (t *themeProperties) init() error {
 	if err != nil {
 		return fmt.Errorf("compiling theme style: %v", err)
 	}
-	t.CSS = template.CSS(whitespaceAtBeginningOfLinePattern.ReplaceAllString(css, ""))
+	t.CSS = template.CSS(whitespaceAtBeginningOfLinePattern.ReplaceAllString(css, "")) // #nosec G203 -- output of the app's own themeStyleTemplate, not external input
 
 	previewHTML, err := executeTemplateToString(themePresetPreviewTemplate, t)
 	if err != nil {
 		return fmt.Errorf("compiling theme preview: %v", err)
 	}
-	t.PreviewHTML = template.HTML(previewHTML)
+	t.PreviewHTML = template.HTML(previewHTML) // #nosec G203 -- output of the app's own themePresetPreviewTemplate, not external input
 
 	if t.BackgroundColor != nil {
 		t.BackgroundColorAsHex = t.BackgroundColor.ToHex()
