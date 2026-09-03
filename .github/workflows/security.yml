@@ -1,0 +1,81 @@
+name: Security
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - go
+          - javascript-typescript
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  go-security:
+    name: Go static security checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Golang
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: go.mod
+      - name: Install pinned scanner
+        run: go install github.com/securego/gosec/v2/cmd/gosec@v2.29.0
+      - name: gosec medium/high findings
+        run: gosec -severity medium ./...
+
+  shell-security:
+    name: ShellCheck app scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Check shell programs
+        run: find ha-addon/dynglance -type f \( -name '*.sh' -o -name 'run' \) -print0 | xargs -0 shellcheck --shell=bash
+
+  image-security:
+    name: Container image build and vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      # ha-addon/dynglance/Dockerfile clones DYNGLANCE_REPO/DYNGLANCE_REF from
+      # GitHub instead of using local build context (by design, for
+      # Supervisor's own local build), so scanning it here would scan main,
+      # not this PR's diff. Scan the standalone image from the root
+      # Dockerfile instead; it's the same one deploy.yml publishes and it
+      # builds from local context.
+      - name: Build the standalone image
+        run: docker build --tag local/app:${{ github.sha }} --file Dockerfile .
+      - name: Scan installed OS packages
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
+        with:
+          image: local/app:${{ github.sha }}
+          fail-build: true
+          severity-cutoff: high
+          only-fixed: false
+          output-format: table
+          grype-version: v0.110.0
