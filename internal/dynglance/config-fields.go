@@ -363,7 +363,7 @@ func (p *proxyOptionsField) UnmarshalYAML(node *yaml.Node) error {
 		Timeout: timeout,
 		Transport: &http.Transport{
 			Proxy:           http.ProxyURL(parsedUrl),
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: p.AllowInsecure},
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: p.AllowInsecure}, // #nosec G402 -- opt-in per proxy config, see SECURITY.md
 		},
 	}
 

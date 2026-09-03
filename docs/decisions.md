@@ -63,4 +63,27 @@ the Supervisor-supplied `X-Ingress-Path` header on each request and prefer
 it over the static `server.base-url` when present, falling back to the
 static value for manually reverse-proxied setups. Full user-facing detail
 is in `docs/docs/home-assistant.md`.
+
+## 2026-09-04: `effectiveBaseURL` validates the `X-Ingress-Path` header instead of trusting it unconditionally
+
+`internal/dynglance/dynglance.go`, `effectiveBaseURL`. Found by triaging
+`gosec` G710 (open redirect) findings added by the security workflow: every
+login/logout/OIDC-callback redirect is built as
+`effectiveBaseURL(r) + "/some/path"`, and the header value was used as-is
+with no validation. Inside Home Assistant's Ingress proxy this header is set
+safely by Supervisor, but the app also accepts direct port access
+(documented in `docs/docs/home-assistant.md`) and ships as a standalone
+Docker image with no Supervisor in front of it at all; in either of those
+modes a client can set `X-Ingress-Path` to anything, including an absolute
+URL like `https://evil.example.com`, turning every one of those redirects
+into an open redirect to an attacker's origin. Rejected: suppressing the
+`gosec` findings with `#nosec`, since the taint warning was correct and the
+header genuinely is attacker-controlled outside the Ingress-proxied
+deployment mode. Rejected: writing a new validator, since `auth.go` already
+has `isSafeLocalPath` (same-origin-path check, with its own test coverage in
+`auth_redirect_test.go`) guarding the post-login redirect-target cookie for
+exactly this class of bypass, backslash variants included. Chosen instead:
+reuse `isSafeLocalPath` for the Ingress header too, so a forged header
+degrades to the configured static `server.base-url` instead of being
+followed, and the two same-origin checks in the codebase can't drift apart.
 </content>

@@ -34,6 +34,8 @@ func (a *application) handleThemeChangeRequest(w http.ResponseWriter, r *http.Re
 		Value:    themeKey,
 		Path:     a.effectiveBaseURL(r) + "/",
 		SameSite: http.SameSiteLaxMode,
+		Secure:   a.isRequestHTTPS(r),
+		HttpOnly: true,
 		Expires:  time.Now().Add(2 * 365 * 24 * time.Hour),
 	})
 

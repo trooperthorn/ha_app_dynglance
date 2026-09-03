@@ -569,9 +569,15 @@ type templateRequestData struct {
 // ingressPathHeader is the Supervisor-set Ingress path prefix header; see docs/docs/home-assistant.md.
 const ingressPathHeader = "X-Ingress-Path"
 
-// effectiveBaseURL prefers the Ingress path when present, else the static server.base-url.
+// effectiveBaseURL prefers the Ingress path when present, else the static
+// server.base-url. The header is validated with isSafeLocalPath (same check
+// used for post-login redirect targets) rather than trusted unconditionally:
+// Supervisor's Ingress proxy sets it safely, but the app also accepts direct
+// port access and ships as a standalone Docker image with no Supervisor in
+// front of it, so in those modes a forged header could otherwise turn every
+// baseURL-prefixed redirect into an open redirect. See docs/decisions.md.
 func (a *application) effectiveBaseURL(r *http.Request) string {
-	if ingressPath := strings.TrimRight(r.Header.Get(ingressPathHeader), "/"); ingressPath != "" {
+	if ingressPath := strings.TrimRight(r.Header.Get(ingressPathHeader), "/"); ingressPath != "" && isSafeLocalPath(ingressPath) {
 		return ingressPath
 	}
 	return a.Config.Server.BaseURL

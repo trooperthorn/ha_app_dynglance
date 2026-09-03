@@ -262,7 +262,7 @@ func (widget *redditWidget) fetchSubredditPosts() (forumPostList, error) {
 				lastErr = fmt.Errorf("could not solve reddit challenge: %w", loidErr)
 				continue
 			}
-			request.AddCookie(&http.Cookie{Name: "loid", Value: loid})
+			request.AddCookie(&http.Cookie{Name: "loid", Value: loid}) // #nosec G124 -- outbound request cookie to Reddit's API; Secure/HttpOnly/SameSite are response-cookie attributes
 		}
 
 		responseJson, err = decodeJsonFromRequest[subredditResponseJson](client, request)

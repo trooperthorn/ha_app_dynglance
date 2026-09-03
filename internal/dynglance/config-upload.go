@@ -71,7 +71,7 @@ func (a *application) handleConfigUploadSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	waitOnFailure := 1*time.Second - time.Duration(mathrand.IntN(500))*time.Millisecond
+	waitOnFailure := 1*time.Second - time.Duration(mathrand.IntN(500))*time.Millisecond // #nosec G404 -- jitter on a failure delay, not a secret
 	ip := a.addressOfRequest(r)
 	rateLimitKey := "cfgupload:" + ip
 

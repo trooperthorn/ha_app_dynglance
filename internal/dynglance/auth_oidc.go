@@ -103,18 +103,23 @@ func (a *application) handleOIDCCallback(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Clear state + PKCE cookies
+	secure := a.isRequestHTTPS(r)
 	http.SetCookie(w, &http.Cookie{
 		Name:     OIDC_STATE_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   secure,
 		Path:     baseURL + "/",
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     OIDC_PKCE_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   secure,
 		Path:     baseURL + "/",
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 	})
 

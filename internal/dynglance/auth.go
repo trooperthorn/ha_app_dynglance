@@ -68,7 +68,7 @@ func generateSessionToken(username string, secret []byte, now time.Time) (string
 	data := make([]byte, AUTH_TOKEN_DATA_LENGTH)
 	copy(data, usernameHash)
 	expires := now.Add(AUTH_TOKEN_VALID_PERIOD).Unix()
-	binary.LittleEndian.PutUint32(data[AUTH_USERNAME_HASH_LENGTH:], uint32(expires))
+	binary.LittleEndian.PutUint32(data[AUTH_USERNAME_HASH_LENGTH:], uint32(expires)) // #nosec G115 -- a uint32 unix timestamp does not wrap until 2106, long past AUTH_TOKEN_VALID_PERIOD
 
 	h := hmac.New(sha256.New, secret[0:AUTH_TOKEN_SECRET_LENGTH])
 	h.Write(data)
@@ -143,7 +143,7 @@ func (a *application) handleAuthenticationAttempt(w http.ResponseWriter, r *http
 		return
 	}
 
-	waitOnFailure := 1*time.Second - time.Duration(mathrand.IntN(500))*time.Millisecond
+	waitOnFailure := 1*time.Second - time.Duration(mathrand.IntN(500))*time.Millisecond // #nosec G404 -- jitter on a failure delay, not a secret
 
 	ip := a.addressOfRequest(r)
 
@@ -445,7 +445,9 @@ func (a *application) takeLoginRedirect(w http.ResponseWriter, r *http.Request) 
 		Name:     AUTH_REDIRECT_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   a.isRequestHTTPS(r),
 		Path:     a.effectiveBaseURL(r) + "/",
+		SameSite: http.SameSiteLaxMode,
 		HttpOnly: true,
 	})
 	return target
@@ -470,7 +472,9 @@ func (a *application) handleLogoutRequest(w http.ResponseWriter, r *http.Request
 		Name:     OIDC_SESSION_COOKIE_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-1 * time.Hour),
+		Secure:   a.isRequestHTTPS(r),
 		Path:     a.effectiveBaseURL(r) + "/",
+		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
 	})
 

@@ -55,7 +55,10 @@ var defaultHTTPClient = &http.Client{
 	Timeout: defaultClientTimeout,
 }
 
-var defaultInsecureHTTPClient = &http.Client{
+// defaultInsecureHTTPClient backs widget requests with allow-insecure opted
+// in per-request (see CustomAPIRequest.AllowInsecure), for self-signed
+// internal HTTPS endpoints; see SECURITY.md.
+var defaultInsecureHTTPClient = &http.Client{ // #nosec G402 -- opt-in per request, not a default
 	Timeout: defaultClientTimeout,
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -71,8 +74,8 @@ var dynglanceUserAgentString = "DynGlance/" + resolveVersion() + " +https://gith
 var userAgentPersistentVersion atomic.Int32
 
 func getBrowserUserAgentHeader() string {
-	if rand.IntN(2000) == 0 {
-		userAgentPersistentVersion.Store(rand.Int32N(5))
+	if rand.IntN(2000) == 0 { // #nosec G404 -- cosmetic User-Agent rotation, not security-sensitive
+		userAgentPersistentVersion.Store(rand.Int32N(5)) // #nosec G404
 	}
 
 	version := strconv.Itoa(130 + int(userAgentPersistentVersion.Load()))
