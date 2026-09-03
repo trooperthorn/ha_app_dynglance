@@ -1,5 +1,10 @@
 FROM alpine:3.24
 
+# Patches base-image packages to whatever Alpine's repo currently has, not
+# just what was baked into this image tag's layer when it was last
+# published; see docs/decisions.md.
+RUN apk upgrade --no-cache
+
 WORKDIR /app
 COPY dynglance .
 

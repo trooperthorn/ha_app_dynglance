@@ -108,4 +108,31 @@ browser depends on). Go's own release notes state the Go 1 compatibility
 promise holds for 1.26. Chosen: bump to 1.26.8 (the latest patch as of
 this session) now, rather than defer past the point of forgetting why the
 CVE was accepted.
+
+## 2026-09-04: standalone-image Dockerfiles run `apk upgrade` before installing packages
+
+`Dockerfile`, `Dockerfile.goreleaser`. Bumping the Alpine base from 3.21 to
+3.24 (previous decision) fixed every `curl` CVE the image scan had found,
+but the very next run surfaced a fresh batch of `libssl3`/`libcrypto3`
+CVEs instead, with a patched package version already available upstream.
+This is Alpine's ordinary rolling release cycle, not a regression: a base
+image tag is a snapshot of whatever packages were current when it was last
+published, and new CVEs get disclosed against those snapshotted versions
+continuously. Rejected: chasing each new disclosure with another version
+bump, which only ever fixes the packages that happen to be behind as of
+the last time someone looked. Chosen instead: `apk upgrade --no-cache`
+before `apk add`, so every build pulls whatever Alpine's repo currently
+has for every package already in the base image, not just the ones this
+Dockerfile explicitly installs. This does not fully solve image staleness
+(a build today is still frozen at today's packages until the next build),
+but it removes the specific failure mode of the base layer alone being
+stale relative to the image tag.
+
+Deliberately not applied to `ha-addon/dynglance/Dockerfile`'s runtime
+stage: it builds from `${BUILD_FROM}` (`ghcr.io/home-assistant/base` by
+default), a Home Assistant-curated and version-pinned base image for
+Supervisor compatibility, not raw Alpine. Running `apk upgrade` there
+could pull packages from a different repository branch than what HA
+built and tested that base image against, and that compatibility can't be
+verified from outside a real Home Assistant environment.
 </content>

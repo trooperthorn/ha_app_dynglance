@@ -23,7 +23,10 @@ FROM alpine:3.24
 # zfs: lets gopsutil's disk-usage lookups shell out to `zfs` for accurate
 # used/available stats on ZFS-backed mounts (server-stats widget).
 # curl: used by the HEALTHCHECK below.
-RUN apk add --no-cache zfs curl
+# apk upgrade first: patches base-image packages (libssl, busybox, etc.) to
+# whatever Alpine's repo currently has, not just what was baked into this
+# image tag's layer when it was last published; see docs/decisions.md.
+RUN apk upgrade --no-cache && apk add --no-cache zfs curl
 
 WORKDIR /app
 COPY --from=builder /app/dynglance .
