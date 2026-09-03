@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 go build \
     -ldflags="-X github.com/Panonim/dynglance/internal/dynglance.buildVersion=${APP_VERSION}" .
 
-FROM alpine:3.21
+FROM alpine:3.24
 
 # zfs: lets gopsutil's disk-usage lookups shell out to `zfs` for accurate
 # used/available stats on ZFS-backed mounts (server-stats widget).
