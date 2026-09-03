@@ -14,7 +14,8 @@ the same day).
 To cut a new release: check `git tag -l "$(date -u +%Y.%m.%d).*"` for the
 highest existing `V` today, then tag and push the next one. The `deploy.yml`
 workflow (`.github/workflows/deploy.yml`) builds and publishes container
-images on tag push and on pushes to the `beta` branch.
+images on tag push (or `workflow_dispatch`); only `main` is a long-lived
+branch, so there is no separate beta build path.
 
 The `version:` field in `ha-addon/dynglance/config.yaml` and the
 `APP_VERSION` default in `ha-addon/dynglance/Dockerfile` are bumped by hand
