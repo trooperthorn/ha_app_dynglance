@@ -63,4 +63,76 @@ the Supervisor-supplied `X-Ingress-Path` header on each request and prefer
 it over the static `server.base-url` when present, falling back to the
 static value for manually reverse-proxied setups. Full user-facing detail
 is in `docs/docs/home-assistant.md`.
+
+## 2026-09-04: `effectiveBaseURL` validates the `X-Ingress-Path` header instead of trusting it unconditionally
+
+`internal/dynglance/dynglance.go`, `effectiveBaseURL`. Found by triaging
+`gosec` G710 (open redirect) findings added by the security workflow: every
+login/logout/OIDC-callback redirect is built as
+`effectiveBaseURL(r) + "/some/path"`, and the header value was used as-is
+with no validation. Inside Home Assistant's Ingress proxy this header is set
+safely by Supervisor, but the app also accepts direct port access
+(documented in `docs/docs/home-assistant.md`) and ships as a standalone
+Docker image with no Supervisor in front of it at all; in either of those
+modes a client can set `X-Ingress-Path` to anything, including an absolute
+URL like `https://evil.example.com`, turning every one of those redirects
+into an open redirect to an attacker's origin. Rejected: suppressing the
+`gosec` findings with `#nosec`, since the taint warning was correct and the
+header genuinely is attacker-controlled outside the Ingress-proxied
+deployment mode. Rejected: writing a new validator, since `auth.go` already
+has `isSafeLocalPath` (same-origin-path check, with its own test coverage in
+`auth_redirect_test.go`) guarding the post-login redirect-target cookie for
+exactly this class of bypass, backslash variants included. Chosen instead:
+reuse `isSafeLocalPath` for the Ingress header too, so a forged header
+degrades to the configured static `server.base-url` instead of being
+followed, and the two same-origin checks in the codebase can't drift apart.
+
+## 2026-09-04: Go toolchain bumped 1.25.14 to 1.26.8, a minor version, not held on 1.25.x
+
+`go.mod`, `Dockerfile`, and `ha-addon/dynglance/Dockerfile`. PR #7's image
+scan flagged a stdlib CVE (CVE-2026-46600) fixed only in Go 1.26.6 or
+later; no 1.25.x patch carries the fix. Rejected: staying on the latest
+1.25.x patch (1.25.14, itself a same-day earlier fix for a different batch
+of stdlib CVEs) and treating this one CVE as accepted residual risk, since
+a minor version bump carries more compatibility risk than a patch bump.
+Checked the Go 1.26 release notes for anything that could break this
+codebase before deciding: no language or standard library changes affect
+how this app uses `net/http`, `html/template`, `text/template`,
+`encoding/json`, `encoding/xml`, or `context`; the only two notices that
+touch packages this app actually uses are `http.Client` now scoping
+cookies to `Request.Host` (affects `widget-torrenting.go`'s cookie jar
+only if a request's `Host` header differs from its connection target,
+which this app never sets) and `http.ServeMux` trailing-slash redirects
+changing from 301 to 307 (more correct, not a behavior this app or a
+browser depends on). Go's own release notes state the Go 1 compatibility
+promise holds for 1.26. Chosen: bump to 1.26.8 (the latest patch as of
+this session) now, rather than defer past the point of forgetting why the
+CVE was accepted.
+
+## 2026-09-04: standalone-image Dockerfiles run `apk upgrade` before installing packages
+
+`Dockerfile`, `Dockerfile.goreleaser`. Bumping the Alpine base from 3.21 to
+3.24 (previous decision) fixed every `curl` CVE the image scan had found,
+but the very next run surfaced a fresh batch of `libssl3`/`libcrypto3`
+CVEs instead, with a patched package version already available upstream.
+This is Alpine's ordinary rolling release cycle, not a regression: a base
+image tag is a snapshot of whatever packages were current when it was last
+published, and new CVEs get disclosed against those snapshotted versions
+continuously. Rejected: chasing each new disclosure with another version
+bump, which only ever fixes the packages that happen to be behind as of
+the last time someone looked. Chosen instead: `apk upgrade --no-cache`
+before `apk add`, so every build pulls whatever Alpine's repo currently
+has for every package already in the base image, not just the ones this
+Dockerfile explicitly installs. This does not fully solve image staleness
+(a build today is still frozen at today's packages until the next build),
+but it removes the specific failure mode of the base layer alone being
+stale relative to the image tag.
+
+Deliberately not applied to `ha-addon/dynglance/Dockerfile`'s runtime
+stage: it builds from `${BUILD_FROM}` (`ghcr.io/home-assistant/base` by
+default), a Home Assistant-curated and version-pinned base image for
+Supervisor compatibility, not raw Alpine. Running `apk upgrade` there
+could pull packages from a different repository branch than what HA
+built and tested that base image against, and that compatibility can't be
+verified from outside a real Home Assistant environment.
 </content>
