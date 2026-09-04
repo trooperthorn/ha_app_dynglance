@@ -12,10 +12,6 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: release-${{ github.repository }}
-  cancel-in-progress: false
-
 jobs:
   deploy:
     runs-on: ubuntu-24.04
