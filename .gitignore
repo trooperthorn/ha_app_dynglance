@@ -11,4 +11,5 @@ Makefile
 .claude/
 .cache/
 docs/scripts/
-sections.yml
+sections.yml__pycache__/
+*.pyc

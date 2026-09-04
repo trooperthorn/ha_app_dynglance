@@ -67,12 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      # ha-addon/dynglance/Dockerfile clones DYNGLANCE_REPO/DYNGLANCE_REF from
-      # GitHub instead of using local build context (by design, for
-      # Supervisor's own local build), so scanning it here would scan main,
-      # not this PR's diff. Scan the standalone image from the root
-      # Dockerfile instead; it's the same one deploy.yml publishes and it
-      # builds from local context.
+      # The root Dockerfile builds from local context; the app Dockerfile
+      # clones main. See docs/operations.md "Image scan scope".
       - name: Build the standalone image
         run: docker build --tag local/app:${{ github.sha }} --file Dockerfile .
       - name: Scan installed OS packages

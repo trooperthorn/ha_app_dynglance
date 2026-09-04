@@ -5,23 +5,19 @@ permissions:
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      # YYYY.MM.DD.V release tags, e.g. 2026.08.23.1
-      - '*.*.*.*'
-    paths-ignore:
-      - 'docs/**'
+  workflow_call:
+    inputs:
+      version:
+        description: Release version to build and attach assets to (YYYY.MM.DD.N)
+        required: true
+        type: string
 
 concurrency:
   group: release-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
-  tests:
-    uses: ./.github/workflows/test.yml
-
   deploy:
-    needs: tests
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -60,9 +56,9 @@ jobs:
 
       - name: Resolve app version
         run: |
-          # See "Release tags" in docs/operations.md.
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            echo "APP_VERSION=${GITHUB_REF_NAME}" >> "${GITHUB_ENV}"
+          # See "Release path" in docs/operations.md.
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "APP_VERSION=${{ inputs.version }}" >> "${GITHUB_ENV}"
           else
             echo "APP_VERSION=$(date -u +%Y.%m.%d).0" >> "${GITHUB_ENV}"
           fi
@@ -82,8 +78,8 @@ jobs:
             ghcr.io/${{ env.IMAGE_REPO }}
             ${{ env.DOCKERHUB_USERNAME != '' && format('docker.io/{0}/dynglance', env.DOCKERHUB_USER_LOWER) || '' }}
           tags: |
-            type=ref,event=tag
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=raw,value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=${{ inputs.version != '' }}
 
       - name: Build and push Docker images
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
@@ -99,21 +95,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Check whether pushed tag is the latest tag
-        id: latest_tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          latest_tag="$(git tag --sort=-version:refname | head -n 1)"
-          echo "latest_tag=${latest_tag}" >> "${GITHUB_OUTPUT}"
-          if [ "${GITHUB_REF_NAME}" = "${latest_tag}" ]; then
-            echo "is_latest=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "is_latest=false" >> "${GITHUB_OUTPUT}"
-          fi
 
   release-binaries:
-    needs: tests
-    if: startsWith(github.ref, 'refs/tags/')
+    if: inputs.version != ''
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -142,7 +126,7 @@ jobs:
           CGO_ENABLED: '0'
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION: ${{ inputs.version }}
         run: go build -ldflags="-X github.com/Panonim/dynglance/internal/dynglance.buildVersion=${APP_VERSION}" -o dynglance .
 
       - name: Create tarball
@@ -151,4 +135,4 @@ jobs:
       - name: Upload release asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${GITHUB_REF_NAME}" dynglance-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz --clobber
+        run: gh release upload "${{ inputs.version }}" dynglance-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz --clobber
