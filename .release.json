@@ -1,0 +1,27 @@
+{
+  "tag_prefix": "",
+  "timezone": "America/Chicago",
+  "release_paths": [
+    "ha-addon",
+    "internal",
+    "pkg",
+    "main.go",
+    "go.mod",
+    "go.sum",
+    "Dockerfile"
+  ],
+  "version_fields": [
+    {
+      "path": "ha-addon/dynglance/config.yaml",
+      "kind": "regex",
+      "pattern": "^version:\\s*\"([^\"]+)\"",
+      "template": "version: \"{version}\""
+    },
+    {
+      "path": "ha-addon/dynglance/Dockerfile",
+      "kind": "regex",
+      "pattern": "^ARG APP_VERSION=\"([^\"]+)\"",
+      "template": "ARG APP_VERSION=\"{version}\""
+    }
+  ]
+}

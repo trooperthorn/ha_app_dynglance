@@ -92,3 +92,16 @@ of the published docs site under `docs/docs/`.
   viewing a different month; it should not auto-advance the visible month in
   that case.
 </content>
+
+## 2026-09-04: release automation
+
+- Install the release GitHub App on this repository and set
+  `RELEASE_AUTOMATION_CLIENT_ID` and `RELEASE_AUTOMATION_PRIVATE_KEY`; until then version
+  bumps are manual.
+- `ha-addon/dynglance/Dockerfile` defaults `DYNGLANCE_REF` to `main`, so a Supervisor
+  build compiles whatever `main` holds at install time rather than the tagged source of
+  the version it reports. Consider defaulting the ref to the `APP_VERSION` tag once the
+  release path has produced a few tags.
+- The `gh-pages` branch is the published docs site written by `docs.yml`; it is the one
+  branch besides `main` that is meant to persist.
+

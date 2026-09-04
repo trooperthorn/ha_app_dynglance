@@ -136,3 +136,20 @@ could pull packages from a different repository branch than what HA
 built and tested that base image against, and that compatibility can't be
 verified from outside a real Home Assistant environment.
 </content>
+
+## 2026-09-04: releases come from a merge to `main`, not a hand-pushed tag
+
+`Release` publishes the version already in `ha-addon/dynglance/config.yaml` and calls
+`deploy.yml` with it; `Prepare release` writes the next version into both version fields
+in a reviewed, auto-merged PR. Rejected: the previous flow, where the maintainer pushed a
+`YYYY.MM.DD.V` tag by hand and the app version was bumped separately, which
+`operations.md` itself described as "nothing automates that today". Tags stay bare
+because the Supervisor shows the app version verbatim and the deploy job tags images
+with it.
+
+## 2026-09-04: upstream code comments stay
+
+The comment-to-docs pass covered the workflows and `docs/`. Comments inside the Go
+sources and the static JavaScript, which this fork shares with `Panonim/dynacat`, are left
+as written so upstream merges stay clean.
+
