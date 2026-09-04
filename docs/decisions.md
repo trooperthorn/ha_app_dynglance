@@ -153,3 +153,28 @@ The comment-to-docs pass covered the workflows and `docs/`. Comments inside the 
 sources and the static JavaScript, which this fork shares with `Panonim/dynacat`, are left
 as written so upstream merges stay clean.
 
+## 2026-09-04: Cookie `Secure` follows the request scheme; CodeQL alerts dismissed
+
+CodeQL raised `go/cookie-secure-not-set` on every `http.SetCookie` in
+`auth.go`, `auth_oidc.go`, and `theme.go` because `Secure` is computed
+(`a.isRequestHTTPS(r)`) rather than the literal `true`. The computed value is
+the correct design: the app runs behind Home Assistant ingress, and many
+installations reach Home Assistant over plain HTTP on the LAN, where a
+`Secure` cookie would never be sent back and login would loop. Every cookie
+also sets `HttpOnly` and `SameSite`. The ten alerts are dismissed as false
+positives with this entry as the reason. Rejected: `Secure: true`
+unconditionally, which breaks HTTP-only installations; rejected: a config
+switch, which moves the same decision to the user with less information.
+
+## 2026-09-04: Docs site pins CDN scripts with Subresource Integrity
+
+CodeQL raised `js/functionality-from-untrusted-source` on the three
+highlight.js scripts and `marked` loaded from CDNs without integrity hashes.
+`docs/index.html` now pins `marked` to 18.0.11 and carries a sha384
+`integrity` attribute plus `crossorigin="anonymous"` on all four tags, so a
+changed or tampered CDN file fails to load instead of executing. When
+bumping a version, recompute the hash (`curl <url> | openssl dgst -sha384
+-binary | openssl base64 -A`). `escapeHtml` in `docs/assets/app.js` now also
+escapes double and single quotes, closing the attribute-context gap CodeQL
+flagged in the search results template.
+
