@@ -3,15 +3,13 @@ name: Test
 permissions:
   contents: read
 
+# No paths filter: "test" is a required status check on main, and a filtered
+# workflow never reports on docs-only pull requests, which leaves them blocked.
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'docs/**'
   pull_request:
-    paths-ignore:
-      - 'docs/**'
   workflow_dispatch:
   workflow_call:
 
