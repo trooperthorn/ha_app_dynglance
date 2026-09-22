@@ -1,0 +1,158 @@
+server:
+  assets-path: /app/assets
+
+branding:
+  logo-url: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/almalinux.png
+  logo-text: "Dashboard"
+  hide-foot: true
+  app-name: "Dashboard"
+  icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/almalinux.png
+  app-icon-url: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/almalinux.png
+  center-desktop-navigation: true
+
+theme:
+  background-color: 229 19 23      # Base: hsl(229deg, 19%, 23%)
+  primary-color: 222 74 74         # Blue: hsl(222deg, 74%, 74%)
+  positive-color: 96 44 68         # Green: hsl(96deg, 44%, 68%)
+  negative-color: 359 68 71        # Red: hsl(359deg, 68%, 71%)
+  contrast-multiplier: 1.2
+  text-saturation-multiplier: 1.0
+  custom-css-file: /app/config/user.css
+
+pages:
+  - name: ✨ Welcome
+    head-widgets:
+      - type: search
+        search-engine: http://192.168.30.3:8888/search?q={QUERY}
+        placeholder: "type here dipshit"
+        new-tab: true
+        bangs:
+          - title: YouTube
+            shortcut: "!yt"
+            url: https://www.youtube.com/results?search_query={QUERY}
+          - title: Reddit
+            shortcut: "!re"
+            url: https://www.reddit.com/search?q={QUERY}
+          - title: Steam
+            shortcut: "!st"
+            url: https://store.steampowered.com/search/?term={QUERY}
+          - title: Amazon
+            shortcut: "!ama"
+            url: https://www.amazon.com/s?k={QUERY}
+    columns:
+      - size: small
+        widgets:
+          $include: welcome-left.yml
+
+      - size: full
+        widgets:
+          - type: split-column
+            widgets:
+              $include: welcome-middle.yml
+
+      - size: small
+        widgets:
+          $include: welcome-right.yml
+
+  - name: 📡 Homeserver
+    head-widgets:
+      - type: custom-api
+        title: Homelab Header
+        hide-header: true
+        cache: 1d
+        template: |
+          <style>
+            .hl-header { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 1rem; background: var(--ctp-mantle, #292c3c); border-radius: 16px; padding: 1rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid var(--ctp-surface0, #414559); border-left: 4px solid #a6d189; width: 100%; box-sizing: border-box; }
+            .hl-icons { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex: 1; flex-wrap: wrap; justify-content: center; }
+            .hl-title { color: var(--ctp-text, #c6d0f5); font-size: clamp(1rem, 3vw, 2.2rem); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; white-space: nowrap; text-align: center; padding: 0 2rem; }
+            .hl-icons img { width: clamp(32px, 5vw, 56px); height: clamp(32px, 5vw, 56px); }
+            @media (max-width: 600px) { .hl-title { padding: 0; } }
+          </style>
+          <div class="hl-header">
+            <div class="hl-icons">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/linkwarden.png">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/arcane.png">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/immich.png">
+            </div>
+            <span class="hl-title">Homeserver Status</span>
+            <div class="hl-icons">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/jellyfin.png">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/navidrome.png">
+              <img src="https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tasktrove.png">
+            </div>
+          </div>
+    columns:
+      - size: full
+        widgets:
+          - type: split-column
+            max-columns: 4
+            widgets:
+              $include: server-row1.yml
+#              $include: server-row2.yml
+#              $include: server-row3.yml
+          - type: split-column
+            max-columns: 4
+            widgets:
+#              $include: server-botmiddle.yml
+      - size: small
+        widgets:
+          $include: server-right.yml
+
+
+  - name: ✨ Honey Do ✨
+    head-widgets:
+      - type: search
+        search-engine: http://192.168.30.3:8888/search?q={QUERY}
+        placeholder: "type here dipshit"
+        new-tab: true
+        bangs:
+          - title: YouTube
+            shortcut: "!yt"
+            url: https://www.youtube.com/results?search_query={QUERY}
+          - title: Reddit
+            shortcut: "!re"
+            url: https://www.reddit.com/search?q={QUERY}
+          - title: Steam
+            shortcut: "!st"
+            url: https://store.steampowered.com/search/?term={QUERY}
+          - title: Amazon
+            shortcut: "!ama"
+            url: https://www.amazon.com/s?k={QUERY}
+    columns:
+      - size: small
+        widgets:
+          $include: welcome-left.yml
+
+      - size: full
+        widgets:
+          - type: split-column
+            widgets:
+               - type: to-do
+#              $include: honeydo.yml
+  - name: NEWS
+    head-widgets:
+      - type: search
+        search-engine: http://192.168.30.3:8888/search?q={QUERY}
+        placeholder: "type here dipshit"
+        new-tab: true
+        bangs:
+          - title: YouTube
+            shortcut: "!yt"
+            url: https://www.youtube.com/results?search_query={QUERY}
+          - title: Reddit
+            shortcut: "!re"
+            url: https://www.reddit.com/search?q={QUERY}
+          - title: Steam
+            shortcut: "!st"
+            url: https://store.steampowered.com/search/?term={QUERY}
+          - title: Amazon
+            shortcut: "!ama"
+            url: https://www.amazon.com/s?k={QUERY}
+    columns:
+      - size: small
+        widgets:
+          $include: welcome-left.yml
+
+      - size: full
+        widgets:
+          $include: news-middle.yml

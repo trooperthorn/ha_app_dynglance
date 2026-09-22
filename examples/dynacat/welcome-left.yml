@@ -1,0 +1,29 @@
+
+- type: clock
+  hour-format: 12h
+  show-progress: true
+  timezones:
+    - timezone: Europe/Vienna
+      label: Austria
+    - timezone: Europe/London
+      label: London
+    - timezone: America/New_York
+      label: New York
+    - timezone: America/Denver
+      label: Denver
+    - timezone: America/Los_Angeles
+      label: Las Vegas / LA
+    - timezone: Pacific/Honolulu
+      label: Hawaii
+    - timezone: Asia/Tokyo
+      label: Japan
+    - timezone: Asia/Baghdad
+      label: Iraq
+
+- type: calendar
+  first-day-of-week: sunday
+- type: weather
+  location: Austin, Texas, United States
+  units: imperial
+  hour-format: 12h
+  cache: 2h
