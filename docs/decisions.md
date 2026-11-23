@@ -178,3 +178,18 @@ bumping a version, recompute the hash (`curl <url> | openssl dgst -sha384
 escapes double and single quotes, closing the attribute-context gap CodeQL
 flagged in the search results template.
 
+
+## 2026-11-23: Go toolchain patch bump 1.26.8 to 1.26.11, go-jose 4.1.4 to 4.1.9
+
+`go.mod`, `go.sum`, `Dockerfile`, and `ha-addon/dynglance/Dockerfile`. The
+image scan had been failing on `main` since October: Grype flagged one
+Critical and eleven High stdlib CVEs in the compiled binary (fixed in Go
+1.26.9, with one further Medium fixed in 1.26.10) and
+`GHSA-mgcc-cww5-fp2q` (High) in the indirect dependency
+`github.com/go-jose/go-jose/v4` (fixed in 4.1.6). Both have fixed releases,
+so both are bumped to the latest patch on the same line (Go 1.26.11,
+go-jose 4.1.9) and no scanner ignore is added. Rejected: moving to Go 1.27,
+since a patch bump clears every finding without the compatibility review a
+minor bump needs. The earlier `zlib` finding (CVE-2026-85091) needed no
+change: Alpine published a fixed package and the existing `apk upgrade`
+step already pulls it.
