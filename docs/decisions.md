@@ -208,3 +208,17 @@ fix. Rejected: a different runtime base, since the image needs `zfs` and
 not link OpenSSL. Chosen: ten ignore entries, one per CVE per package,
 dated, with removal tracked in `docs/backlog.md`; `apk upgrade` pulls the
 fixed package as soon as Alpine publishes one.
+
+## 2026-11-23: x/net, brotli and klauspost/compress bumped for the same scan
+
+`go.mod`, `go.sum`. The scan also reports Go vulnerability database IDs
+(`GO-2026-...`) for modules compiled into the binary: `golang.org/x/net`
+0.58.0 (GO-2026-6612 Critical; GO-2026-6603, -6610, -6611, -6617, -6860
+High; fixed by 0.62.0), `github.com/andybalholm/brotli` 1.0.6
+(GO-2026-6888 Critical, fixed in 1.2.7) and
+`github.com/klauspost/compress` 1.20.0 (GO-2026-6865 High, fixed in
+1.20.2). All have fixed releases, so each is bumped to its latest release
+(x/net 0.63.0, brotli 1.3.0, compress 1.20.5); `go get` raised
+`golang.org/x/crypto`, `x/sys` and `x/text` with x/net as its minimum
+requirements. brotli and compress are indirect (pulled in by `utls`), and
+the build and test suite pass unchanged. No ignores for any of these.
