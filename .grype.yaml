@@ -1,0 +1,55 @@
+# Grype ignore rules for the image scan in .github/workflows/security.yml.
+# Every entry is scoped to one package and one advisory and carries the date
+# and the reason; an entry with no reason is a lowered gate. See
+# docs/decisions.md.
+ignore:
+  # 2026-11-23: libcrypto3/libssl3 3.5.9-r1 in the Alpine 3.24 runtime stage
+  # are flagged High for five OpenSSL CVEs with no fixed release anywhere:
+  # 3.5.9 is the newest upstream OpenSSL 3.5 release, and Alpine 3.24 and
+  # edge both ship 3.5.9-r1 (checked against both APKINDEX files and the
+  # 3.24 secdb that day; Grype shows no "fixed in" version). The dynglance
+  # binary is built with CGO_ENABLED=0 and uses Go's own TLS, so it never
+  # loads these libraries; in the image they serve apk, other Alpine tools and
+  # the curl HEALTHCHECK, which only requests http://127.0.0.1:8080/. The
+  # `apk upgrade` step in the Dockerfile picks the fix up the day Alpine
+  # publishes it; remove each entry then (docs/backlog.md).
+  - vulnerability: CVE-2026-84786
+    package:
+      name: libcrypto3
+      type: apk
+  - vulnerability: CVE-2026-84786
+    package:
+      name: libssl3
+      type: apk
+  - vulnerability: CVE-2026-107493
+    package:
+      name: libcrypto3
+      type: apk
+  - vulnerability: CVE-2026-107493
+    package:
+      name: libssl3
+      type: apk
+  - vulnerability: CVE-2026-107494
+    package:
+      name: libcrypto3
+      type: apk
+  - vulnerability: CVE-2026-107494
+    package:
+      name: libssl3
+      type: apk
+  - vulnerability: CVE-2026-121482
+    package:
+      name: libcrypto3
+      type: apk
+  - vulnerability: CVE-2026-121482
+    package:
+      name: libssl3
+      type: apk
+  - vulnerability: CVE-2026-124709
+    package:
+      name: libcrypto3
+      type: apk
+  - vulnerability: CVE-2026-124709
+    package:
+      name: libssl3
+      type: apk

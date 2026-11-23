@@ -178,3 +178,47 @@ bumping a version, recompute the hash (`curl <url> | openssl dgst -sha384
 escapes double and single quotes, closing the attribute-context gap CodeQL
 flagged in the search results template.
 
+
+## 2026-11-23: Go toolchain patch bump 1.26.8 to 1.26.11, go-jose 4.1.4 to 4.1.9
+
+`go.mod`, `go.sum`, `Dockerfile`, and `ha-addon/dynglance/Dockerfile`. The
+image scan had been failing on `main` since October: Grype flagged one
+Critical and eleven High stdlib CVEs in the compiled binary (fixed in Go
+1.26.9, with one further Medium fixed in 1.26.10) and
+`GHSA-mgcc-cww5-fp2q` (High) in the indirect dependency
+`github.com/go-jose/go-jose/v4` (fixed in 4.1.6). Both have fixed releases,
+so both are bumped to the latest patch on the same line (Go 1.26.11,
+go-jose 4.1.9) and no scanner ignore is added. Rejected: moving to Go 1.27,
+since a patch bump clears every finding without the compatibility review a
+minor bump needs. The earlier `zlib` finding (CVE-2026-85091) needed no
+change: Alpine published a fixed package and the existing `apk upgrade`
+step already pulls it.
+
+## 2026-11-23: five OpenSSL CVEs ignored in the image scan, per package and per CVE
+
+`.grype.yaml` (new). With the Go findings above cleared, the same scan
+failed on `libcrypto3`/`libssl3` 3.5.9-r1 for CVE-2026-84786,
+CVE-2026-107493, CVE-2026-107494, CVE-2026-121482 and CVE-2026-124709, all
+High, none with a fixed version: 3.5.9 is the newest upstream OpenSSL 3.5
+release and Alpine 3.24 and edge both ship 3.5.9-r1. Rejected: raising the
+`severity-cutoff`, setting `only-fixed: true`, or ignoring the packages
+wholesale, each of which would also hide future advisories that do have a
+fix. Rejected: a different runtime base, since the image needs `zfs` and
+`curl` from Alpine and the app binary itself (CGO disabled, Go TLS) does
+not link OpenSSL. Chosen: ten ignore entries, one per CVE per package,
+dated, with removal tracked in `docs/backlog.md`; `apk upgrade` pulls the
+fixed package as soon as Alpine publishes one.
+
+## 2026-11-23: x/net, brotli and klauspost/compress bumped for the same scan
+
+`go.mod`, `go.sum`. The scan also reports Go vulnerability database IDs
+(`GO-2026-...`) for modules compiled into the binary: `golang.org/x/net`
+0.58.0 (GO-2026-6612 Critical; GO-2026-6603, -6610, -6611, -6617, -6860
+High; fixed by 0.62.0), `github.com/andybalholm/brotli` 1.0.6
+(GO-2026-6888 Critical, fixed in 1.2.7) and
+`github.com/klauspost/compress` 1.20.0 (GO-2026-6865 High, fixed in
+1.20.2). All have fixed releases, so each is bumped to its latest release
+(x/net 0.63.0, brotli 1.3.0, compress 1.20.5); `go get` raised
+`golang.org/x/crypto`, `x/sys` and `x/text` with x/net as its minimum
+requirements. brotli and compress are indirect (pulled in by `utls`), and
+the build and test suite pass unchanged. No ignores for any of these.
