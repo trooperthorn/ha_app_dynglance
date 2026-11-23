@@ -1,0 +1,101 @@
+- type: bookmarks
+  groups:
+   - title: Homelab Accessable Sites
+     links:
+      - title: Game Emulator
+        url: http://192.168.30.3:8081/
+        icon: sh:romm
+      - title: Jellyfin
+        url: http://10.10.11.98:30013/
+        icon: sh:jellyfin
+
+      - title: RANDOM USEFUL TOOLS
+        url: http://10.10.11.98:30063/
+        icon: sh:hetrixtools
+      - title: RANDOM Programming Doc WIKI
+        url: http://10.30.30.103:9292/
+
+      - title: AI Chat Bots OFFLINE
+        url: http://10.30.30.106:3100/
+        icon: sh:ollama
+      - title: Flight
+        url: http://192.168.30.57:1099
+        icon: sh:invoiceplane
+      - title: Local Search
+        url: http://192.168.30.3:8888/
+        icon: sh:searxng
+      - title: Uptime Report
+        url: http://192.168.20.19:3001/status/glance
+        icon: sh:uptime-kuma
+
+
+- type: bookmarks
+  groups:
+   - title: Homelab Internal Sites
+     links:
+      - title: Home Assistant
+        url: http://192.168.30.3:8123
+        icon: sh:home-assistant
+      - title: PiHole
+        icon: sh:pi-hole
+        url: https://10.1.23.57/admin
+      - title: SolarWinds NMS
+        url: https://swosh-svr.net.secretsquirrel.club/
+        icon: https://www.vectorlogo.zone/logos/solarwinds/solarwinds-icon.svg
+      - title: Ubiquiti
+        icon: si:ubiquiti
+        url: https://192.168.254.254
+        description: Wirless Network
+      - title: Unifi Cameras
+        url: https://192.168.30.2
+        icon: mdi:camera-lock
+      - title: VMWare
+        url: https://10.10.11.122/
+        icon: sh:vmware-esx
+      - title: PiKVM
+        url: https://10.0.0.51/
+        icon: sh:pikvm
+
+
+
+
+- type: bookmarks
+  groups:
+   - title: Custom Sites Status
+     links:
+      - title: TrueNAS
+        icon: sh:truenas-scale
+        url: https://10.10.11.98
+#      allow-insecure: true
+
+      - title: Traefik
+        icon: sh:traefik
+        url: http://10.10.11.99:30384/dashboard/
+
+
+
+      - title: Stash
+        icon: sh:stash
+        url: http://10.10.11.98:30198/
+  #      allow-insecure: true
+        description: Books
+      - title: Kavita
+        icon: sh:kavita
+        url: http://10.10.11.98:30069/
+
+
+      - title: nzbGet
+        icon: sh:nzbget
+        url: http://10.30.30.98:6789/
+
+      - title: Seerr
+        icon: sh:seerr
+        url: http://10.30.30.98:30357/
+
+
+      - title: qBitWebUI
+        url: http://10.30.30.103:3000/
+        icon: http://10.30.30.103:3000/logo.svg
+      - title: qBitTorrent
+        url: http://10.30.30.98:30024/
+        icon: sh:qbittorrent

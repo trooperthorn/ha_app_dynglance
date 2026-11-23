@@ -1,0 +1,94 @@
+- type: group
+  widgets:
+   - type: rss
+     title: Weather
+     cache: 12h
+     collapse-after: 3
+     limit: 10
+     style: detailed-list
+     feeds:
+       - url: https://www.weather.gov/rss_page.php?site_name=ewx
+         title: Weather Gov
+       - url: https://www.kvue.com/feeds/syndication/rss/weather
+         title: KVUE Weather
+     template: |
+        <style>
+          .mf-7 { --accent: #e78284; }
+          .mf-7 .mf-card { border-left: 3px solid var(--accent); background: #414559; border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; }
+          .mf-7 .mf-title a { color: #c6d0f5; font-size: 1.4rem; font-weight: 500; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .mf-7 .mf-title a:hover { color: var(--accent); }
+          .mf-7 .mf-meta { font-size: 0.95rem; color: #838ba7; margin-top: 4px; display: flex; gap: 6px; }
+          .mf-7 .mf-feed { color: var(--accent); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+        </style>
+        <div class="mf-7">
+        {{ range .JSON.Array "entries" }}
+        <div class="mf-card">
+          <div class="mf-title"><a href="{{ .String "url" }}" target="_blank">{{ .String "title" }}</a></div>
+          <div class="mf-meta">
+            <span class="mf-feed">{{ .String "feed.title" }}</span>
+            <span>·</span>
+            <time {{ .String "published_at" | parseTime "2006-01-02T15:04:05Z07:00" | toRelativeTime }}></time>
+            <span>·</span>
+            <span>{{ .String "published_at" | parseTime "2006-01-02T15:04:05Z07:00" | formatTime "02.01.2006 15:04" }}</span>
+          </div>
+        </div>
+        {{ end }}
+        </div>
+
+   - type: rss
+     title: Austin
+     cache: 12h
+     collapse-after: 3
+     style: detailed-list
+     feeds:
+       - url: https://www.kvue.com/feeds/syndication/rss/news/local
+         title: KVUE
+       - url: https://www.kxan.com/feed/
+         title: KXAN
+   - type: rss
+     title: Texas Metro
+     cache: 12h
+     collapse-after: 3
+     style: detailed-list
+     feeds:
+       - url: https://www.khou.com/feeds/syndication/rss/news/local
+         title: Houston - KHOU
+       - url: https://www.wfaa.com/feeds/syndication/rss/news/local
+         title: Dallas - WFAA
+       - url: https://www.ksat.com/arc/outboundfeeds/rss/category/news/local/?outputType=xml
+         title: San Antonio - KSAT
+
+   - type: rss
+     title: Texas
+     cache: 12h
+     collapse-after: 3
+     style: detailed-list
+     feeds:
+       - url: https://feeds.texastribune.org/feeds/main/
+         title: Texas Tribune
+# Cloudflare blocked
+#       - url: https://thedailytexan.com/feed/
+#         title: Daily Texan
+   - type: reddit
+     subreddit: austin
+     show-thumbnails: true
+     show-flairs: true
+     sort-by: best
+#     top-period: week
+#     cache: 12h
+
+   - type: reddit
+     subreddit: texas
+     show-thumbnails: true
+     show-flairs: true
+     sort-by: top
+     top-period: week
+#     cache: 12h
+- type: videos
+  channels:
+#  cache: 12h
+     - UCshCsg1YVKli8yBai-wa78w # Agenda Free TV
+     - UCNPvoDpoOWevcdTHr8GyTyA # TX Storm Chasers
+     - UCoIfgmxArIATc2EpHD3W9EA # David Reimer  Texas Weather Roundup
+     - UClFSU9_bUb4Rc6OYfTt5SPw # Philly D
+

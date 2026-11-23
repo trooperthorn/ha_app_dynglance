@@ -1,0 +1,343 @@
+/* Catppuccin Frappé Theme for Glance */
+/* Speichere dies als config/user.css oder assets/user.css */
+
+:root {
+  /* Catppuccin Frappé Palette */
+  --ctp-base: #303446;
+  --ctp-mantle: #292c3c;
+  --ctp-crust: #232634;
+  --ctp-surface0: #414559;
+  --ctp-surface1: #51576d;
+  --ctp-surface2: #626880;
+  --ctp-overlay0: #737994;
+  --ctp-overlay1: #838ba7;
+  --ctp-overlay2: #949cbb;
+  --ctp-subtext0: #a5adce;
+  --ctp-subtext1: #b5bfe2;
+  --ctp-text: #c6d0f5;
+  --ctp-lavender: #babbf1;
+  --ctp-blue: #8caaee;
+  --ctp-sapphire: #85c1dc;
+  --ctp-sky: #99d1db;
+  --ctp-teal: #81c8be;
+  --ctp-green: #a6d189;
+  --ctp-yellow: #e5c890;
+  --ctp-peach: #ef9f76;
+  --ctp-maroon: #ea999c;
+  --ctp-red: #e78284;
+  --ctp-mauve: #ca9ee6;
+  --ctp-pink: #f4b8e4;
+  --ctp-flamingo: #eebebe;
+  --ctp-rosewater: #f2d5cf;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--ctp-base) !important;
+  color: var(--ctp-text) !important;
+}
+
+/* Widget Cards */
+.widget {
+  background-color: var(--ctp-mantle) !important;
+  border: 1px solid var(--ctp-surface0) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.widget-header {
+  color: var(--ctp-text) !important;
+  border-bottom: 2px solid var(--ctp-surface0) !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Monitor Widget Styling */
+.widget-type-monitor .monitor-site-card {
+  background-color: var(--ctp-mantle) !important;
+  border: 1px solid var(--ctp-surface0) !important;
+  border-radius: 10px !important;
+  padding: 1.25rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.2s ease !important;
+}
+
+.widget-type-monitor .monitor-site-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+  border-color: var(--ctp-blue) !important;
+}
+
+.widget-type-monitor .monitor-site-title {
+  color: var(--ctp-text) !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+}
+
+.widget-type-monitor .monitor-site-url {
+  color: var(--ctp-subtext0) !important;
+  font-size: 0.85rem !important;
+}
+
+/* Monitor Status Indicators */
+.widget-type-monitor .status-dot {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+  margin-right: 0.5rem !important;
+}
+
+.widget-type-monitor .status-dot.online {
+  background-color: var(--ctp-green) !important;
+  box-shadow: 0 0 8px rgba(166, 209, 137, 0.6) !important;
+}
+
+.widget-type-monitor .status-dot.offline {
+  background-color: var(--ctp-red) !important;
+  box-shadow: 0 0 8px rgba(231, 130, 132, 0.6) !important;
+}
+
+.widget-type-monitor .status-text {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.widget-type-monitor .status-text.online {
+  color: var(--ctp-green) !important;
+}
+
+.widget-type-monitor .status-text.offline {
+  color: var(--ctp-red) !important;
+}
+
+/* Links */
+a {
+  color: var(--ctp-blue) !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: var(--ctp-sapphire) !important;
+}
+
+/* Buttons */
+button, .button {
+  background-color: var(--ctp-blue) !important;
+  color: var(--ctp-base) !important;
+  border: none !important;
+  padding: 0.5rem 1.2rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(140, 170, 238, 0.3) !important;
+}
+
+button:hover, .button:hover {
+  background-color: var(--ctp-sapphire) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(140, 170, 238, 0.5) !important;
+}
+
+/* Lists */
+ul {
+  list-style: none !important;
+  padding: 0 !important;
+}
+
+li {
+  padding: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  background: var(--ctp-base) !important;
+  border-radius: 8px !important;
+  border-left: 3px solid var(--ctp-blue) !important;
+  transition: all 0.2s ease !important;
+}
+
+li:hover {
+  background: var(--ctp-surface0) !important;
+  transform: translateX(4px);
+}
+
+/* RSS Widget */
+.widget-type-rss .rss-article-title {
+  color: var(--ctp-text) !important;
+  font-weight: 500 !important;
+}
+
+.widget-type-rss .rss-article-time {
+  color: var(--ctp-subtext0) !important;
+  font-size: 0.85rem !important;
+}
+
+/* Weather Widget */
+.widget-type-weather .weather-temperature {
+  color: var(--ctp-peach) !important;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+}
+
+.widget-type-weather .weather-location {
+  color: var(--ctp-text) !important;
+  font-size: 1.2rem !important;
+}
+
+/* Calendar Widget */
+.widget-type-calendar .calendar-event {
+  background: var(--ctp-surface0) !important;
+  border-left: 3px solid var(--ctp-mauve) !important;
+  padding: 0.75rem !important;
+  border-radius: 6px !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.widget-type-calendar .calendar-event-time {
+  color: var(--ctp-blue) !important;
+  font-weight: 600 !important;
+}
+
+/* Markets Widget */
+.widget-type-markets .market-positive {
+  color: var(--ctp-green) !important;
+}
+
+.widget-type-markets .market-negative {
+  color: var(--ctp-red) !important;
+}
+
+/* Videos Widget */
+.widget-type-videos .video-thumbnail {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.widget-type-videos .video-title {
+  color: var(--ctp-text) !important;
+  font-weight: 500 !important;
+  margin-top: 0.5rem !important;
+}
+
+/* Bookmarks Widget */
+.widget-type-bookmarks .bookmark-link {
+  color: var(--ctp-blue) !important;
+  padding: 0.5rem !important;
+  display: block !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.widget-type-bookmarks .bookmark-link:hover {
+  background: var(--ctp-surface0) !important;
+  transform: translateX(4px);
+}
+
+/* Clock Widget */
+.widget-type-clock .clock-time {
+  color: var(--ctp-blue) !important;
+  font-size: 3rem !important;
+  font-weight: bold !important;
+  text-shadow: 0 2px 8px rgba(140, 170, 238, 0.4) !important;
+}
+
+.widget-type-clock .clock-date {
+  color: var(--ctp-subtext0) !important;
+  font-size: 1.2rem !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ctp-mantle);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ctp-surface0);
+  border-radius: 5px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ctp-surface1);
+}
+
+/* Input Fields */
+input, textarea, select {
+  background-color: var(--ctp-surface0) !important;
+  color: var(--ctp-text) !important;
+  border: 1px solid var(--ctp-surface1) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: var(--ctp-blue) !important;
+  box-shadow: 0 0 0 3px rgba(140, 170, 238, 0.2) !important;
+}
+
+/* Tables */
+table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+thead {
+  background: var(--ctp-surface0) !important;
+}
+
+th {
+  color: var(--ctp-text) !important;
+  font-weight: 600 !important;
+  padding: 1rem !important;
+  text-align: left !important;
+}
+
+td {
+  padding: 0.75rem 1rem !important;
+  border-bottom: 1px solid var(--ctp-surface0) !important;
+  color: var(--ctp-text) !important;
+}
+
+tr:hover {
+  background: var(--ctp-surface0) !important;
+}
+
+/* Badges */
+.badge {
+  padding: 0.4rem 0.8rem !important;
+  border-radius: 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.badge-success {
+  background: var(--ctp-green) !important;
+  color: var(--ctp-base) !important;
+}
+
+.badge-error {
+  background: var(--ctp-red) !important;
+  color: var(--ctp-base) !important;
+}
+
+.badge-warning {
+  background: var(--ctp-peach) !important;
+  color: var(--ctp-base) !important;
+}
+
+.badge-info {
+  background: var(--ctp-blue) !important;
+  color: var(--ctp-base) !important;
+}
