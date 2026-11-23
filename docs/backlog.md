@@ -105,3 +105,11 @@ of the published docs site under `docs/docs/`.
 - The `gh-pages` branch is the published docs site written by `docs.yml`; it is the one
   branch besides `main` that is meant to persist.
 
+
+## 2026-11-23: image scan ignores to remove
+
+- `.grype.yaml` ignores CVE-2026-84786, CVE-2026-107493, CVE-2026-107494,
+  CVE-2026-121482 and CVE-2026-124709 for `libcrypto3` and `libssl3` because
+  no fixed OpenSSL 3.5 package existed on that date. When Alpine 3.24
+  publishes a newer `openssl` than 3.5.9-r1, delete the entries the new
+  package fixes and re-run the Security workflow.
