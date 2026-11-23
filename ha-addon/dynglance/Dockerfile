@@ -9,7 +9,7 @@ ARG DYNGLANCE_REF
 ARG TARGETARCH
 # Keep in sync with the `version:` field in config.yaml.
 ARG TARGETVARIANT
-ARG APP_VERSION="2026.08.23.4"
+ARG APP_VERSION="2026.11.23.1"
 
 RUN apk add --no-cache git
 
