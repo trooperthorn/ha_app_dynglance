@@ -193,3 +193,18 @@ since a patch bump clears every finding without the compatibility review a
 minor bump needs. The earlier `zlib` finding (CVE-2026-85091) needed no
 change: Alpine published a fixed package and the existing `apk upgrade`
 step already pulls it.
+
+## 2026-11-23: five OpenSSL CVEs ignored in the image scan, per package and per CVE
+
+`.grype.yaml` (new). With the Go findings above cleared, the same scan
+failed on `libcrypto3`/`libssl3` 3.5.9-r1 for CVE-2026-84786,
+CVE-2026-107493, CVE-2026-107494, CVE-2026-121482 and CVE-2026-124709, all
+High, none with a fixed version: 3.5.9 is the newest upstream OpenSSL 3.5
+release and Alpine 3.24 and edge both ship 3.5.9-r1. Rejected: raising the
+`severity-cutoff`, setting `only-fixed: true`, or ignoring the packages
+wholesale, each of which would also hide future advisories that do have a
+fix. Rejected: a different runtime base, since the image needs `zfs` and
+`curl` from Alpine and the app binary itself (CGO disabled, Go TLS) does
+not link OpenSSL. Chosen: ten ignore entries, one per CVE per package,
+dated, with removal tracked in `docs/backlog.md`; `apk upgrade` pulls the
+fixed package as soon as Alpine publishes one.
